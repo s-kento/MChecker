@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Mchecker
+Bundle-SymbolicName: s-kento.mchecker;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: s_kento.mchecker.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.jdt;bundle-version="3.12.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
