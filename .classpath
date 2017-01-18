@@ -5,5 +5,7 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="D:/new_workspace/MChecker/lib/org.eclipse.jdt.core_3.12.1.v20160829-0950.jar"/>
+	<classpathentry kind="lib" path="D:/new_workspace/MChecker/lib/org.eclipse.jface_3.12.1.v20160923-1528.jar"/>
+	<classpathentry kind="lib" path="D:/new_workspace/MChecker/lib/org.eclipse.text_3.6.0.v20160503-1849.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
