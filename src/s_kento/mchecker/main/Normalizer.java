@@ -20,12 +20,44 @@ import org.eclipse.text.edits.TextEdit;
 public class Normalizer {
 	/*
 	 * ASTを構築して正規化の処理をする
+	 * @param ファイルパス
+	 * @return AST
 	 */
-	public void normalize(String filePath) throws IOException {
+	public CompilationUnit normalize(String filePath) throws IOException {
 		// 入力ファイルを文字列データに変換
 		String source = Files.lines(Paths.get(filePath), Charset.forName("UTF-8"))
 				.collect(Collectors.joining(System.getProperty("line.separator")));
-		// ASTの構築
+		//ASTを得る
+		CompilationUnit unit = getAST(source);
+		//正規化を行う
+		NormVisitor nvisitor = new NormVisitor(unit);
+		unit.accept(nvisitor);
+		return unit;
+	}
+
+	/*
+	 * ASTからソースコードを復元
+	 * @param ソースコード，AST
+	 * @return ソースコード
+	 */
+	public String getCode(String code, CompilationUnit unit) {
+		IDocument eDoc = new Document(code);
+		TextEdit edit = unit.rewrite(eDoc, null);
+		try {
+			edit.apply(eDoc);
+			return eDoc.get();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/*
+	 *ASTの構築を行う
+	 *@param ソースコード
+	 *@return AST
+	 */
+	public CompilationUnit getAST(String source){
 		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setBindingsRecovery(true);
 		parser.setStatementsRecovery(true);
@@ -38,26 +70,8 @@ public class Normalizer {
 		parser.setUnitName("Target.java");
 		CompilationUnit unit = (CompilationUnit) parser.createAST(new NullProgressMonitor());
 		unit.recordModifications();
-		NormVisitor visitor = new NormVisitor(unit);
-		unit.accept(visitor);
-		//System.out.println(getCode(source, unit));
-		PrintVisitor pvisitor = new PrintVisitor(unit);
-		unit.accept(pvisitor);
-	}
 
-	/*
-	 * ASTからソースコードを復元
-	 */
-	public String getCode(String code, CompilationUnit unit) {
-		IDocument eDoc = new Document(code);
-		TextEdit edit = unit.rewrite(eDoc, null);
-		try {
-			edit.apply(eDoc);
-			return eDoc.get();
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+		return unit;
 	}
 
 }

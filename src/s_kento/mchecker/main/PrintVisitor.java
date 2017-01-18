@@ -1,7 +1,9 @@
 package s_kento.mchecker.main;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
@@ -43,15 +45,25 @@ import org.eclipse.jdt.core.dom.WhileStatement;
 
 public class PrintVisitor extends ASTVisitor {
 	private CompilationUnit unit;
+	public List<Sentence> sentences = new ArrayList<Sentence>();
 
 	public PrintVisitor(CompilationUnit unit) {
 		this.unit = unit;
 	}
 
+	public List<Sentence> getSentences(){
+		return sentences;
+	}
+
+	public int getLine(ASTNode node) {
+		return unit.getLineNumber(node.getStartPosition());
+	}
+
 	@Override
 	public boolean visit(ExpressionStatement node) {
 		Expression ex = node.getExpression();
-		System.out.println(ex.toString() + ", 行番号：" + unit.getLineNumber(node.getStartPosition()));
+		Sentence sentence = new Sentence(ex.toString(), getLine(node));
+		sentences.add(sentence);
 		return true;
 	}
 
@@ -60,21 +72,24 @@ public class PrintVisitor extends ASTVisitor {
 		List<Modifier> modifiers = node.modifiers();
 		Type type = node.getType();
 		List<VariableDeclarationFragment> frags = node.fragments();
+		Sentence sentence = new Sentence();
 		for (Modifier modifier : modifiers) {
-			System.out.print(modifier.toString() + " ");
+			sentence.addSentence(modifier.toString() + " ");
 		}
-		System.out.print(type.toString() + " ");
+		sentence.addSentence(type.toString() + " ");
 		for (VariableDeclarationFragment frag : frags) {
-			System.out.print(frag + " ");
+			sentence.addSentence(frag + " ");
 		}
-		System.out.println(", 行番号: " + unit.getLineNumber(node.getStartPosition()));
+		sentence.setLine(getLine(node));
+		sentences.add(sentence);
 		return false;
 	}
 
 	@Override
 	public boolean visit(IfStatement node) {
 		Expression ex = node.getExpression();
-		System.out.println("if(" + ex.toString() + ")" + ", 行番号: " + unit.getLineNumber(node.getStartPosition()));
+		Sentence sentence = new Sentence("if(" + ex.toString() + ")", getLine(node));
+		sentences.add(sentence);
 		return true;
 	}
 
@@ -83,16 +98,18 @@ public class PrintVisitor extends ASTVisitor {
 		List<Expression> initializers = node.initializers();
 		Expression ex = node.getExpression();
 		List<Expression> updaters = node.updaters();
-		System.out.print("for(");
+		Sentence sentence = new Sentence();
+		sentence.addSentence("for(");
 		for (Expression init : initializers) {
-			System.out.print(init.toString());
+			sentence.addSentence(init.toString());
 		}
-		System.out.print("; " + ex.toString() + "; ");
+		sentence.addSentence("; " + ex.toString() + "; ");
 		for (Expression updater : updaters) {
-			System.out.print(updater.toString());
+			sentence.addSentence(updater.toString());
 		}
-		System.out.println(")" + ", 行番号: " + unit.getLineNumber(node.getStartPosition()));
-
+		sentence.addSentence(")");
+		sentence.setLine(getLine(node));
+		sentences.add(sentence);
 		return true;
 	}
 
@@ -100,15 +117,16 @@ public class PrintVisitor extends ASTVisitor {
 	public boolean visit(EnhancedForStatement node) {
 		SingleVariableDeclaration paramter = node.getParameter();
 		Expression ex = node.getExpression();
-		System.out.println("for(" + paramter.toString() + " : " + ex.toString() + ")" + ", 行番号: "
-				+ unit.getLineNumber(node.getStartPosition()));
+		Sentence sentence = new Sentence("for(" + paramter.toString() + " : " + ex.toString() + ")", getLine(node));
+		sentences.add(sentence);
 		return true;
 	}
 
 	@Override
 	public boolean visit(ReturnStatement node) {
 		Expression ex = node.getExpression();
-		System.out.println("return " + ex.toString() + ", 行番号: " + unit.getLineNumber(node.getStartPosition()));
+		Sentence sentence = new Sentence("return " + ex.toString(),getLine(node));
+		sentences.add(sentence);
 		return true;
 	}
 
@@ -117,42 +135,48 @@ public class PrintVisitor extends ASTVisitor {
 		List<Modifier> modifiers = node.modifiers();
 		Type type = node.getType();
 		List<VariableDeclarationFragment> frags = node.fragments();
+		Sentence sentence= new Sentence();
 		for (Modifier modifier : modifiers) {
-			System.out.print(modifier.toString() + " ");
+			sentence.addSentence(modifier.toString() + " ");
 		}
-		System.out.print(type.toString() + " ");
+		sentence.addSentence(type.toString() + " ");
 		for (VariableDeclarationFragment frag : frags) {
-			System.out.print(frag + " ");
+			sentence.addSentence(frag + " ");
 		}
-		System.out.println(", 行番号: " + unit.getLineNumber(node.getStartPosition()));
+		sentence.setLine(getLine(node));
+		sentences.add(sentence);
 		return true;
 	}
 
 	@Override
 	public boolean visit(PackageDeclaration node) {
 		Name name = node.getName();
-		System.out.println("package " + name + ", 行番号: " + unit.getLineNumber(node.getStartPosition()));
+		Sentence sentence = new Sentence("package " + name , getLine(node));
+		sentences.add(sentence);
 		return true;
 	}
 
 	@Override
 	public boolean visit(ImportDeclaration node) {
-		System.out.print("import ");
+		Sentence sentence = new Sentence();
+		sentence.addSentence("import ");
 		if (node.isStatic()) {
-			System.out.print("static ");
+			sentence.addSentence("static ");
 		}
-		System.out.print(node.getName());
+		sentence.addSentence(node.getName().toString());
 		if (node.isOnDemand()) {
-			System.out.print(".*");
+			sentence.addSentence(".*");
 		}
-		System.out.println(", 行番号: " + unit.getLineNumber(node.getStartPosition()));
+		sentence.setLine(getLine(node));
+		sentences.add(sentence);
 		return true;
 	}
 
 	@Override
 	public boolean visit(WhileStatement node) {
 		Expression ex = node.getExpression();
-		System.out.println("while( " + ex.toString() + ")" + ", 行番号: " + unit.getLineNumber(node.getStartPosition()));
+		Sentence sentence = new Sentence("while( " + ex.toString() + ")", getLine(node));
+		sentences.add(sentence);
 		return true;
 	}
 
@@ -163,24 +187,26 @@ public class PrintVisitor extends ASTVisitor {
 		SimpleName name = node.getName();
 		List<SingleVariableDeclaration> parameters = node.parameters();
 		List<Type> exceptions = node.thrownExceptionTypes();
-		for (int i=0;i<modifiers.size();i++) {
+		Sentence sentence = new Sentence();
+		for (int i = 0; i < modifiers.size(); i++) {
 			if (modifiers.get(i).isModifier())
-				System.out.print(modifiers.get(i).toString() + " ");
+				sentence.addSentence(modifiers.get(i).toString() + " ");
 		}
 		if (!node.isConstructor()) {
-			System.out.print(type.toString() + " ");
+			sentence.addSentence(type.toString() + " ");
 		}
-		System.out.print(name + "(");
+		sentence.addSentence(name.toString() + "(");
 		for (SingleVariableDeclaration parameter : parameters) {
-			System.out.print(parameter.toString() + " " );
+			sentence.addSentence(parameter.toString() + " ");
 		}
-		System.out.print(")");
-		if(exceptions.size()>0)
-			System.out.print("throws ");
-		for(Type exception : exceptions){
-			System.out.print(exception.toString()+" ");
+		sentence.addSentence(")");
+		if (exceptions.size() > 0)
+			sentence.addSentence(" throws ");
+		for (Type exception : exceptions) {
+			sentence.addSentence(exception.toString() + " ");
 		}
-		System.out.println(", 行番号: " + unit.getLineNumber(node.getStartPosition()));
+		sentence.setLine(getLine(node));
+		sentences.add(sentence);
 		return true;
 	}
 
@@ -191,153 +217,173 @@ public class PrintVisitor extends ASTVisitor {
 		Name name = node.getName();
 		Type type = node.getSuperclassType();
 		List<Type> interTypes = node.superInterfaceTypes();
+		Sentence sentence = new Sentence();
 		for (Modifier modifier : modifiers) {
-			System.out.print(modifier.toString() + " ");
+			sentence.addSentence(modifier.toString() + " ");
 		}
 		if (!inter) {
-			System.out.print("class " + name);
+			sentence.addSentence("class " + name.toString());
 		} else {
-			System.out.print("interface " + name);
+			sentence.addSentence("interface " + name.toString());
 		}
 		if (type != null) {
-			System.out.print(" extends " + type.toString());
+			sentence.addSentence(" extends " + type.toString());
 		}
 		if (interTypes.size() != 0) {
-			System.out.print(" implements ");
+			sentence.addSentence(" implements ");
 			for (Type interType : interTypes) {
-				System.out.print(interType.toString());
+				sentence.addSentence(interType.toString());
 			}
 		}
-		System.out.println();
+		sentence.setLine(getLine(node));
+		sentences.add(sentence);
 		return true;
 	}
 
 	@Override
-	public boolean visit(AssertStatement node){
+	public boolean visit(AssertStatement node) {
 		Expression ex1 = node.getExpression();
 		Expression ex2 = node.getMessage();
-		System.out.print("assert "+ex1.toString());
-		if(ex2!=null){
-			System.out.print(" : "+ex2.toString());
+		Sentence sentence = new Sentence();
+		sentence.addSentence("assert " + ex1.toString());
+		if (ex2 != null) {
+			sentence.addSentence(" : " + ex2.toString());
 		}
-		System.out.println( ", 行番号: " + unit.getLineNumber(node.getStartPosition()));
+		sentence.setLine(getLine(node));
+		sentences.add(sentence);
 		return true;
 	}
 
 	@Override
-	public boolean visit(BreakStatement node){
+	public boolean visit(BreakStatement node) {
 		SimpleName label = node.getLabel();
-		System.out.print("break ");
-		if(label!=null){
-			System.out.print(label);
+		Sentence sentence = new Sentence();
+		sentence.addSentence("break ");
+		if (label != null) {
+			sentence.addSentence(label.toString());
 		}
-		System.out.println();
+		sentence.setLine(getLine(node));
+		sentences.add(sentence);
 		return true;
 	}
 
 	@Override
-	public boolean visit(ContinueStatement node){
+	public boolean visit(ContinueStatement node) {
 		SimpleName label = node.getLabel();
-		System.out.println("continue ");
-		if(label!=null){
-			System.out.print(label);
+		Sentence sentence = new Sentence();
+		sentence.addSentence("continue ");
+		if (label != null) {
+			sentence.addSentence(label.toString());
 		}
+		sentence.setLine(getLine(node));
+		sentences.add(sentence);
 		return true;
 	}
 
 	@Override
-	public boolean visit(DoStatement node){
+	public boolean visit(DoStatement node) {
 		Statement body = node.getBody();
 		Expression ex = node.getExpression();
-		System.out.println("do");
+		Sentence sentence1 = new Sentence("do", getLine(node));
+		sentences.add(sentence1);
 		body.accept(this);
-		System.out.println("while("+ex.toString()+")");
+		Sentence sentence2 = new Sentence("while(" + ex.toString() + ")", getLine(ex));
+		sentences.add(sentence2);
 		return false;
 	}
 
 	@Override
-	public boolean visit(LabeledStatement node){
+	public boolean visit(LabeledStatement node) {
 		Statement body = node.getBody();
 		SimpleName label = node.getLabel();
-		System.out.println(label+" : ");
+		Sentence sentence = new Sentence(label.toString()+ " : ", getLine(node));
+		sentences.add(sentence);
 		body.accept(this);
 		return false;
 	}
 
 	@Override
-	public boolean visit(SwitchStatement node){
+	public boolean visit(SwitchStatement node) {
 		Expression ex = node.getExpression();
-		System.out.println("switch("+ex.toString()+")");
+		Sentence sentence = new Sentence ("switch(" + ex.toString() + ")", getLine(node));
+		sentences.add(sentence);
 		return true;
 	}
 
 	@Override
-	public boolean visit(SwitchCase node){
-		Expression ex =node.getExpression();
-		if(!node.isDefault()){
-			System.out.println("case "+ex.toString()+" :");
-		}
-		else{
-			System.out.println("default : ");
-		}
-		return true;
-	}
-
-	@Override
-	public boolean visit(SynchronizedStatement node){
+	public boolean visit(SwitchCase node) {
 		Expression ex = node.getExpression();
-		System.out.println("synchronized("+ex.toString()+")");
+		Sentence sentence = new Sentence();
+		if (!node.isDefault()) {
+			sentence.addSentence("case " + ex.toString() + " :");
+		} else {
+			sentence.addSentence("default : ");
+		}
+		sentence.setLine(getLine(node));
+		sentences.add(sentence);
 		return true;
 	}
 
 	@Override
-	public boolean visit(TryStatement node){
+	public boolean visit(SynchronizedStatement node) {
+		Expression ex = node.getExpression();
+		Sentence sentence = new Sentence("synchronized(" + ex.toString() + ")", getLine(node));
+		sentences.add(sentence);
+		return true;
+	}
+
+	@Override
+	public boolean visit(TryStatement node) {
 		Block body = node.getBody();
 		List<CatchClause> catches = node.catchClauses();
 		Block fi = node.getFinally();
-		System.out.println("try");
+		Sentence sentence1 = new Sentence("try", getLine(node));
+		sentences.add(sentence1);
 		body.accept(this);
-		for(CatchClause c: catches){
+		for (CatchClause c : catches) {
 			c.accept(this);
 		}
-		if(fi!=null){
-			System.out.println("finally");
+		if (fi != null) {
+			Sentence sentence2 = new Sentence("finally", getLine(fi));
+			sentences.add(sentence2);
 			fi.accept(this);
 		}
 		return false;
 	}
 
 	@Override
-	public boolean visit(CatchClause node){
+	public boolean visit(CatchClause node) {
 		Block body = node.getBody();
 		SingleVariableDeclaration ex = node.getException();
-		System.out.println("catch("+ex.toString()+")");
+		Sentence sentence = new Sentence("catch(" + ex.toString() + ")", getLine(node));
+		sentences.add(sentence);
 		body.accept(this);
 		return false;
 	}
 
 	@Override
-	public boolean visit(ThrowStatement node){
+	public boolean visit(ThrowStatement node) {
 		Expression ex = node.getExpression();
-		System.out.println("throw "+ex.toString());
+		Sentence sentence = new Sentence("throw " + ex.toString(), getLine(node));
+		sentences.add(sentence);
 		return true;
 	}
 
 	@Override
-	public boolean visit(EnumDeclaration node){
-		//未実装
+	public boolean visit(EnumDeclaration node) {
+		// 未実装
 		return true;
 	}
 
 	@Override
-	public boolean visit(AnnotationTypeDeclaration node){
-		//未実装
+	public boolean visit(AnnotationTypeDeclaration node) {
+		// 未実装
 		return true;
 	}
 
 	@Override
-	public boolean visit(AnonymousClassDeclaration node){
-		//未実装
+	public boolean visit(AnonymousClassDeclaration node) {
+		// 未実装
 		return true;
 	}
 }
