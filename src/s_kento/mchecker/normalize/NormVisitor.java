@@ -1,4 +1,4 @@
-package s_kento.mchecker.main;
+package s_kento.mchecker.normalize;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;

@@ -5,6 +5,11 @@ import java.util.List;
 
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
+import s_kento.mchecker.modify.Checker;
+import s_kento.mchecker.normalize.Normalizer;
+import s_kento.mchecker.normalize.PrintVisitor;
+import s_kento.mchecker.normalize.Sentence;
+
 public class Main {
 	public static void main(String[] args) throws IOException {
 		long start=System.currentTimeMillis();

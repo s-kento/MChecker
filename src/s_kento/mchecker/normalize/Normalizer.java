@@ -1,4 +1,4 @@
-package s_kento.mchecker.main;
+package s_kento.mchecker.normalize;
 
 import java.io.IOException;
 import java.nio.charset.Charset;

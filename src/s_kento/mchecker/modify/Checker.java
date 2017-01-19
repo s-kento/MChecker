@@ -1,4 +1,4 @@
-package s_kento.mchecker.main;
+package s_kento.mchecker.modify;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import difflib.Delta;
 import difflib.DiffUtils;
 import difflib.Patch;
+import s_kento.mchecker.normalize.Sentence;
 
 //修正パターンを抽出
 public class Checker extends DiffUtils{
