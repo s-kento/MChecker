@@ -6,7 +6,25 @@ import java.util.List;
 public class Modification {
 	private String modification;
 	private List<?> original;
+	private int originalLine;
 	private List<?> revised;
+	private int revisedLine;
+
+	public int getOriginalLine() {
+		return originalLine;
+	}
+
+	public void setOriginalLine(int originalLine) {
+		this.originalLine = originalLine;
+	}
+
+	public int getRevisedLine() {
+		return revisedLine;
+	}
+
+	public void setRevisedLine(int revisedLine) {
+		this.revisedLine = revisedLine;
+	}
 
 	public Modification(String modification, List<?> original, List<?> revised){
 		setModification(modification);

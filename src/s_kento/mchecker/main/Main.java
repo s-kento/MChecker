@@ -7,6 +7,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class Main {
 	public static void main(String[] args) throws IOException {
+		long start=System.currentTimeMillis();
 		Normalizer norm = new Normalizer();
 		CompilationUnit unit1=norm.normalize(args[0]);
 		CompilationUnit unit2 = norm.normalize(args[1]);
@@ -21,5 +22,7 @@ public class Main {
 		}*/
 		Checker ch = new Checker();
 		ch.checkModification(sentences1, sentences2);
+		long end=System.currentTimeMillis();
+		System.out.println((end-start)+"ms");
 	}
 }
