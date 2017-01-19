@@ -31,7 +31,8 @@ public class Sentence {
 		this.line = line;
 	}
 	public void addSentence(String addition){
-		this.sentence+=addition;
+		sentence+=addition;
+		this.hashSentence=DigestUtils.md5Hex(sentence);
 	}
 
 }

@@ -14,7 +14,7 @@ public class Main {
 		unit.accept(pvisitor);
 		List<Sentence> sentences=pvisitor.getSentences();
 		for(Sentence sentence : sentences){
-			System.out.println(sentence.getSentence()+", 行番号："+sentence.getLine());
+			System.out.println(sentence.getHashSentence()+", 行番号："+sentence.getLine());
 		}
 	}
 }
