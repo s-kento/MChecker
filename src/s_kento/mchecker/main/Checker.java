@@ -9,7 +9,7 @@ import difflib.Patch;
 
 //修正パターンを抽出
 public class Checker extends DiffUtils{
-	public void checkModification(List<Sentence> original, List<Sentence> revised) {
+	public List<Modification> checkModification(List<Sentence> original, List<Sentence> revised) {
 		//diffをとり，patchに格納
 		Patch patch = DiffUtils.diff(toListString(original), toListString(revised));
 		List<Modification> modifications = new ArrayList<Modification>();
@@ -21,7 +21,7 @@ public class Checker extends DiffUtils{
 			modifications.add(m);
 		}
 		printModification(modifications);
-
+		return modifications;
 	}
 
 	public List<String> toListString(List<Sentence> s) {

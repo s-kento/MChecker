@@ -2,6 +2,8 @@ package s_kento.mchecker.main;
 
 import java.util.List;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 //変更パターンを格納するクラス
 public class Modification {
 	private String modification;
@@ -9,6 +11,11 @@ public class Modification {
 	private int originalLine;
 	private List<?> revised;
 	private int revisedLine;
+
+	public String hashCode(String source){
+		String hash=DigestUtils.md5Hex(source);
+		return hash;
+	}
 
 	public int getOriginalLine() {
 		return originalLine;
