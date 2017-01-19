@@ -88,9 +88,17 @@ public class PrintVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(IfStatement node) {
 		Expression ex = node.getExpression();
-		Sentence sentence = new Sentence("if(" + ex.toString() + ")", getLine(node));
-		sentences.add(sentence);
-		return true;
+		Statement th = node.getThenStatement();
+		Statement el = node.getElseStatement();
+		Sentence sentence1 = new Sentence("if(" + ex.toString() + ")", getLine(node));
+		sentences.add(sentence1);
+		th.accept(this);
+		if(el!=null){
+			Sentence sentence2 = new Sentence("else", getLine(el));
+			sentences.add(sentence2);
+			el.accept(this);
+		}
+		return false;
 	}
 
 	@Override
