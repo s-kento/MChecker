@@ -6,6 +6,8 @@ import java.util.List;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 import s_kento.mchecker.modify.Checker;
+import s_kento.mchecker.modify.Localizer;
+import s_kento.mchecker.modify.Modification;
 import s_kento.mchecker.normalize.Normalizer;
 import s_kento.mchecker.normalize.PrintVisitor;
 import s_kento.mchecker.normalize.Sentence;
@@ -26,7 +28,9 @@ public class Main {
 			System.out.println(sentence.getSentence()+", 行番号："+sentence.getLine());
 		}*/
 		Checker ch = new Checker();
-		ch.checkModification(sentences1, sentences2);
+		List<Modification> modifications=ch.checkModification(sentences1, sentences2);
+		Localizer localizer = new Localizer();
+		localizer.localize(args[2], modifications);
 		long end=System.currentTimeMillis();
 		System.out.println((end-start)+"ms");
 	}

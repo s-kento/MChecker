@@ -21,7 +21,7 @@ public class Checker extends DiffUtils{
 			m.setRevisedLine(revised.get(delta.getRevised().getPosition()).getLine());
 			modifications.add(m);
 		}
-		printModification(modifications);
+		//printModifications(modifications);
 		return modifications;
 	}
 
@@ -33,22 +33,26 @@ public class Checker extends DiffUtils{
 		return st;
 	}
 
-	public void printModification(List<Modification> modifications){
+	public void printModifications(List<Modification> modifications){
 		for (Modification modification : modifications) {
-			System.out.println(modification.getModification());
-			System.out.println(String.format("[変更前(%d)行目]", modification.getOriginalLine()));
-			for (Object line : modification.getOriginal()) {
-				System.out.println(line);
-			}
-
-			System.out.println("　↓");
-
-			System.out.println(String.format("[変更後(%d)行目]", modification.getRevisedLine()));
-			for (Object line : modification.getRevised()) {
-				System.out.println(line);
-			}
-			System.out.println();
+			printModification(modification);
 		}
+	}
+
+	public static void printModification(Modification modification){
+		System.out.println(modification.getModification());
+		System.out.println(String.format("[変更前(%d)行目]", modification.getOriginalLine()));
+		for (Object line : modification.getOriginal()) {
+			System.out.println(line);
+		}
+
+		System.out.println("　↓");
+
+		System.out.println(String.format("[変更後(%d)行目]", modification.getRevisedLine()));
+		for (Object line : modification.getRevised()) {
+			System.out.println(line);
+		}
+		System.out.println();
 	}
 
 }

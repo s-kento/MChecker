@@ -12,7 +12,7 @@ public class Modification {
 	private List<?> revised;
 	private int revisedLine;
 
-	public String hashCode(String source){
+	public static String hashCode(String source){
 		String hash=DigestUtils.md5Hex(source);
 		return hash;
 	}
